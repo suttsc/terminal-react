@@ -1,0 +1,179 @@
+@import 'tailwindcss';
+
+@source '../app';
+@source '../shell';
+@source '../windows';
+
+@theme {
+  --font-sans: var(--font-archivo), system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, monospace;
+
+  --animate-pop: pop 160ms ease-out;
+
+  @keyframes pop {
+    from {
+      opacity: 0;
+      transform: translateY(-6px) scale(0.99);
+    }
+  }
+}
+
+/* Every colour is a theme token; components never name a hex. */
+@theme inline {
+  --color-ground: var(--ground);
+  --color-ground-2: var(--ground-2);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-palette-glass: var(--palette-glass);
+  --color-taskbar-glass: var(--taskbar-glass);
+  --color-line: var(--line);
+  --color-line-soft: var(--line-soft);
+  --color-ink: var(--text);
+  --color-ink-dim: var(--text-dim);
+  --color-ink-faint: var(--text-faint);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-ok: var(--ok);
+  --color-info: var(--info);
+  --color-warn: var(--warn);
+  --color-warn-line: var(--warn-line);
+}
+
+:root,
+[data-theme='amber'] {
+  --ground: #0d0f15;
+  --ground-2: #141826;
+  --glow-1: #1c2233;
+  --glow-2: #191d2c;
+  --surface: #181b24;
+  --surface-2: #1f2330;
+  --surface-3: #262b3a;
+  --palette-glass: rgba(24, 27, 36, 0.92);
+  --taskbar-glass: rgba(20, 23, 31, 0.88);
+  --line: #2c3242;
+  --line-soft: #232838;
+  --text: #e6e8ef;
+  --text-dim: #8a91a6;
+  --text-faint: #5e6578;
+  --accent: #f0a848;
+  --accent-soft: rgba(240, 168, 72, 0.14);
+  --ok: #5fbf94;
+  --info: #6f9fe0;
+  --warn: #e0795f;
+  --warn-line: rgba(224, 121, 95, 0.45);
+  --shadow-palette: 0 24px 70px -12px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.02);
+  --shadow-window: 0 20px 60px -14px rgba(0, 0, 0, 0.75);
+  color-scheme: dark;
+}
+
+[data-theme='phosphor'] {
+  --ground: #0a110d;
+  --ground-2: #0f1913;
+  --glow-1: #12241a;
+  --glow-2: #101d16;
+  --surface: #131c17;
+  --surface-2: #19241e;
+  --surface-3: #202e26;
+  --palette-glass: rgba(19, 28, 23, 0.92);
+  --taskbar-glass: rgba(15, 24, 19, 0.88);
+  --line: #283a30;
+  --line-soft: #1e2b24;
+  --text: #e0efe6;
+  --text-dim: #86a495;
+  --text-faint: #5b7769;
+  --accent: #5fd39a;
+  --accent-soft: rgba(95, 211, 154, 0.14);
+  --ok: #c9d36a;
+  --info: #6fc3e0;
+  --warn: #e8866a;
+  --warn-line: rgba(232, 134, 106, 0.45);
+}
+
+[data-theme='cold'] {
+  --ground: #0a0e17;
+  --ground-2: #0f1626;
+  --glow-1: #14203a;
+  --glow-2: #111a2e;
+  --surface: #141a27;
+  --surface-2: #1a2232;
+  --surface-3: #212b3f;
+  --palette-glass: rgba(20, 26, 39, 0.92);
+  --taskbar-glass: rgba(15, 21, 34, 0.88);
+  --line: #29344d;
+  --line-soft: #1f283b;
+  --text: #e3e9f5;
+  --text-dim: #8a98b4;
+  --text-faint: #64718e;
+  --accent: #7fb0f0;
+  --accent-soft: rgba(127, 176, 240, 0.14);
+  --ok: #5fbf94;
+  --info: #63c8d8;
+  --warn: #e0795f;
+  --warn-line: rgba(224, 121, 95, 0.45);
+}
+
+[data-theme='ember'] {
+  --ground: #120d0b;
+  --ground-2: #1a120f;
+  --glow-1: #2a1a14;
+  --glow-2: #211612;
+  --surface: #1c1512;
+  --surface-2: #241b17;
+  --surface-3: #2e231e;
+  --palette-glass: rgba(28, 21, 18, 0.92);
+  --taskbar-glass: rgba(24, 18, 15, 0.88);
+  --line: #3b2d27;
+  --line-soft: #2b211c;
+  --text: #f1e7e2;
+  --text-dim: #ab978d;
+  --text-faint: #7c6961;
+  --accent: #e8795a;
+  --accent-soft: rgba(232, 121, 90, 0.14);
+  --ok: #9cc78f;
+  --info: #82a9d8;
+  --warn: #f0c050;
+  --warn-line: rgba(240, 192, 80, 0.45);
+}
+
+[data-theme='paper'] {
+  --ground: #f3eee4;
+  --ground-2: #e9e2d4;
+  --glow-1: #fbf8f1;
+  --glow-2: #e8dfcf;
+  --surface: #fbf8f2;
+  --surface-2: #efe8db;
+  --surface-3: #e4dbcb;
+  --palette-glass: rgba(251, 248, 242, 0.92);
+  --taskbar-glass: rgba(237, 230, 217, 0.88);
+  --line: #cfc3ae;
+  --line-soft: #e0d6c5;
+  --text: #221c14;
+  --text-dim: #5c5244;
+  --text-faint: #857865;
+  --accent: #9e5608;
+  --accent-soft: rgba(158, 86, 8, 0.14);
+  --ok: #2c7650;
+  --info: #2b5c99;
+  --warn: #ad4026;
+  --warn-line: rgba(173, 64, 38, 0.45);
+  --shadow-palette:
+    0 24px 70px -12px rgba(60, 40, 10, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  --shadow-window: 0 20px 60px -14px rgba(60, 40, 10, 0.25);
+  color-scheme: light;
+}
+
+@layer base {
+  /* The desktop wallpaper: two soft glows over the ground. */
+  body {
+    background:
+      radial-gradient(1200px 700px at 50% -10%, var(--glow-1) 0%, transparent 62%),
+      radial-gradient(900px 600px at 85% 110%, var(--glow-2) 0%, transparent 60%), var(--ground);
+    background-attachment: fixed;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+}
