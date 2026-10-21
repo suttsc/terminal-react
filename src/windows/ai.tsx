@@ -7,7 +7,7 @@ export default function AiWindow() {
       <h3 className="text-[15px] font-semibold text-ink">Built with AI. Mostly Claude Opus 5.5.</h3>
       <p>
         This website was designed and built with AI — mostly Claude Opus 5.5, working in Claude
-        Code. It runs on Next.js, with Payload looking after the handful of records it keeps.
+        Code, on Next.js and Payload.
       </p>
       <p>
         suttsc decided what to build, argued about how, and owns the result. The AI wrote a great
