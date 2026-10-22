@@ -47,7 +47,7 @@ The Vercel build command is `pnpm build:vercel` (set in `vercel.json`):
 Before the first production deploy:
 
 - [ ] Repo under the personal GitHub account (Hobby can't connect to organisation repos)
-- [ ] Vercel project created, framework Next.js, Neon added from the Marketplace (`DATABASE_URI`, pooled)
+- [ ] Vercel project created, framework Next.js, Neon added from the Marketplace (its `DATABASE_URL` is used; no `DATABASE_URI` needed)
 - [ ] Every variable in `.env.example` set for Production (and Preview if previews should sign in)
 - [ ] Google console redirect URIs: `https://suttsc.com/api/auth/callback/google` and the `*.vercel.app` production URL
 - [ ] `CRON_SECRET` set (the crons in `vercel.json` are daily)

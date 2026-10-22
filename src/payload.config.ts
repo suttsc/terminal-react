@@ -41,7 +41,8 @@ export default buildConfig({
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: { outputFile: path.resolve(dirname, 'payload-types.ts') },
   db: postgresAdapter({
-    pool: { connectionString: process.env.DATABASE_URI || '' },
+    // DATABASE_URL is what the Neon integration manages; DATABASE_URI overrides it.
+    pool: { connectionString: process.env.DATABASE_URI || process.env.DATABASE_URL || '' },
     // Schema changes go through committed migrations, never a dev push.
     push: false,
     migrationDir: path.resolve(dirname, 'migrations'),
