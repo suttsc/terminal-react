@@ -5,5 +5,6 @@ export default defineCommand({
   signature: '/projects',
   description: 'Things I built on purpose',
   outcome: 'navigate',
+  pure: true,
   handle: async () => navigate('projects'),
 })

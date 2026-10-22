@@ -37,6 +37,7 @@ describe('/theme', () => {
     await expect(run('/theme Phosphor', ctx)).resolves.toEqual({
       type: 'inline',
       lines: ['phosphor. Noted.'],
+      refresh: true,
     })
     expect(cookies.get('theme')).toBe('phosphor')
     expect(cookies.maxAges.get('theme')).toBe(31_536_000)

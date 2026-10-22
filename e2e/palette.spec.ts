@@ -92,3 +92,31 @@ test('only commands that show content have a page', async ({ request }) => {
     expect((await request.get(path)).status(), path).toBe(404)
   }
 })
+
+test('fixed commands answer without asking the server; the rest still ask', async ({ page }) => {
+  const asked: string[] = []
+  page.on('request', (request) => {
+    if (new URL(request.url()).pathname === '/terminal') {
+      asked.push(request.postDataJSON().command)
+    }
+  })
+
+  await page.goto('/')
+  const combobox = page.getByRole('combobox')
+
+  await combobox.fill('/ai')
+  await page.keyboard.press('Enter')
+  await expect(page.getByRole('dialog', { name: 'ai.txt' })).toBeVisible()
+  await page.keyboard.press('Escape')
+
+  await combobox.fill('/help')
+  await page.keyboard.press('Enter')
+  await expect(page.getByRole('listbox', { name: 'commands' })).toBeVisible()
+  await page.keyboard.press('Escape')
+
+  await combobox.fill('/uptime')
+  await page.keyboard.press('Enter')
+  await expect(page.getByText(/deploys so far/)).toBeVisible()
+
+  expect(asked).toEqual(['/uptime'])
+})

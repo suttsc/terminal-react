@@ -9,5 +9,6 @@ export default defineCommand({
   signature: '/whoami',
   description: 'Identify the current user',
   outcome: 'window',
+  pure: true,
   handle: async () => window('whoami.txt', 'whoami'),
 })

@@ -34,7 +34,10 @@ export type WindowOutput = {
 
 export type NavigateOutput = { type: 'navigate'; url: string }
 
-export type Output = InlineOutput | MenuOutput | WindowOutput | NavigateOutput
+export type Output = (InlineOutput | MenuOutput | WindowOutput | NavigateOutput) & {
+  /** The command changed something the layout reads, such as the theme or the session. */
+  refresh?: true
+}
 
 export const inline = (lines: string[]): InlineOutput => ({ type: 'inline', lines })
 
@@ -69,6 +72,11 @@ export function window<K extends WindowKey>(
     props: { ...(rest[0] as Record<string, unknown> | undefined) },
   }
 }
+
+/**
+ * Marks an answer that changed what the layout reads, so the palette re-renders it.
+ */
+export const refreshing = <T extends Output>(output: T): T => ({ ...output, refresh: true })
 
 /**
  * Go to a named route. Never a free URL.

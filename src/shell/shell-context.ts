@@ -21,6 +21,8 @@ export type WindowRequest = Omit<OpenWindow, 'id' | 'layer' | 'minimised'>
 /** What the root layout hands the shell on every render. */
 export type ShellProps = {
   commands: ManifestEntry[]
+  /** Answers to the pure commands, keyed by signature, shown without a request. */
+  answers: Record<string, Output>
   theme: Theme
   ownerTimezone: string
   /** A sign-in's outcome, for the first render after it and no other. */

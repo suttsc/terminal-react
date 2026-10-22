@@ -8,6 +8,7 @@ export default defineOwnerCommand({
   signature: '/deploy',
   description: 'Ship it',
   outcome: 'inline',
+  pure: true,
   handle: async () =>
     inline([
       'pushing to main…',

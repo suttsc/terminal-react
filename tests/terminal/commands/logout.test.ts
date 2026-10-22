@@ -9,6 +9,7 @@ describe('/logout', () => {
     await expect(run('/logout', ctx)).resolves.toEqual({
       type: 'inline',
       lines: ['Signed out. You are suttsc again, unofficially.'],
+      refresh: true,
     })
     expect(session.signedOut).toBe(true)
   })

@@ -5,5 +5,6 @@ export default defineCommand({
   signature: '/ai',
   description: 'Who else worked on this',
   outcome: 'window',
+  pure: true,
   handle: async () => window('ai.txt', 'ai'),
 })

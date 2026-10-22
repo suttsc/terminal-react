@@ -19,6 +19,31 @@ export type RunContext = Omit<CommandContext, 'args' | 'arg' | 'manifest'>
 export type Registry = {
   manifest(ctx: AuthorizationContext): ManifestEntry[]
   run(input: string, ctx: RunContext): Promise<Output>
+  /** The answers of the listed pure commands, keyed by signature, to ship with the page. */
+  answers(ctx: AuthorizationContext): Promise<Record<string, Output>>
+}
+
+const impure = (what: string) => () => {
+  throw new Error(`A pure command reached for ${what}.`)
+}
+
+/**
+ * The context a pure command is answered in: anything beyond `isOwner` and the
+ * manifest throws, so a command marked pure by mistake fails loudly.
+ */
+function pureContext(ctx: AuthorizationContext, manifest: () => ManifestEntry[]): CommandContext {
+  const refuse = (what: string) => new Proxy({} as never, { get: impure(what) }) as never
+
+  return {
+    isOwner: ctx.isOwner,
+    args: [],
+    arg: () => undefined,
+    cookies: refuse('cookies'),
+    repos: refuse('repositories'),
+    session: refuse('the session'),
+    manifest,
+    now: impure('the clock'),
+  }
 }
 
 const words = (input: string): string[] =>
@@ -77,7 +102,20 @@ export function createRegistry(list: TerminalCommand[]): Registry {
     })
   }
 
-  return { manifest, run }
+  async function answers(ctx: AuthorizationContext): Promise<Record<string, Output>> {
+    const listed = sorted.filter(
+      (command) => command.pure && command.authorized(ctx) && !command.hidden,
+    )
+    const context = pureContext(ctx, () => manifest(ctx))
+
+    return Object.fromEntries(
+      await Promise.all(
+        listed.map(async (command) => [command.signature, await command.handle(context)]),
+      ),
+    )
+  }
+
+  return { manifest, run, answers }
 }
 
 export const registry = createRegistry(commands)

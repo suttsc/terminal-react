@@ -7,6 +7,14 @@ export function normalise(query: string): string {
 }
 
 /**
+ * What the server would match a typed command as: one leading slash, single
+ * spaces, lower case.
+ */
+export function asSignature(query: string): string {
+  return `/${normalise(query).replace(/^\/+/, '')}`
+}
+
+/**
  * Whether the query is a signature followed by arguments, as in "/theme amber".
  */
 export function hasArguments(query: string, signature: string): boolean {

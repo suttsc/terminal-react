@@ -40,7 +40,10 @@ export const metadata: Metadata = {
 export default async function RootLayout({ children }: { children: ReactNode }) {
   const [jar, requestHeaders, isOwner] = await Promise.all([cookies(), headers(), getIsOwner()])
   const theme = themeOrDefault(jar.get(THEME_COOKIE)?.value)
-  const flash = await openFlash(requestHeaders.get(FLASH_HEADER))
+  const [flash, answers] = await Promise.all([
+    openFlash(requestHeaders.get(FLASH_HEADER)),
+    registry.answers({ isOwner }),
+  ])
 
   return (
     <html
@@ -53,6 +56,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
       <body className="font-sans text-ink antialiased">
         <Shell
           commands={registry.manifest({ isOwner })}
+          answers={answers}
           theme={theme}
           ownerTimezone={site.timezone}
           flash={{

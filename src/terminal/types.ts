@@ -50,16 +50,22 @@ export type TerminalCommand = {
   outcome: Outcome
   /** Whether the command runs but is left out of the manifest. */
   hidden: boolean
+  /**
+   * Whether the command answers the same way every time for a given visitor,
+   * reading nothing but `isOwner` and the manifest. Its answer ships with the
+   * page, so the palette shows it without asking the server.
+   */
+  pure: boolean
   /** Whether the current visitor may know the command exists at all. */
   authorized(ctx: AuthorizationContext): boolean
   handle(ctx: CommandContext): Promise<Output>
 }
 
-type CommandDefinition = Omit<TerminalCommand, 'hidden' | 'authorized'> &
-  Partial<Pick<TerminalCommand, 'hidden' | 'authorized'>>
+type CommandDefinition = Omit<TerminalCommand, 'hidden' | 'pure' | 'authorized'> &
+  Partial<Pick<TerminalCommand, 'hidden' | 'pure' | 'authorized'>>
 
 export function defineCommand(definition: CommandDefinition): TerminalCommand {
-  return { hidden: false, authorized: () => true, ...definition }
+  return { hidden: false, pure: false, authorized: () => true, ...definition }
 }
 
 /**

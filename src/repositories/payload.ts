@@ -13,6 +13,7 @@ import type {
   RunsRepository,
   StatsRepository,
 } from '@/repositories/types'
+import { lazyRepositories } from '@/repositories/lazy'
 import { RUN_SPORT_TYPES } from '@/repositories/types'
 
 export const getPayloadClient = (): Promise<Payload> => getPayload({ config })
@@ -175,6 +176,9 @@ export class PayloadStats implements StatsRepository {
     })
   }
 }
+
+/** Repositories for one request, connected only if a command reads or writes. */
+export const lazyPayloadRepositories = (): Repositories => lazyRepositories(payloadRepositories)
 
 export async function payloadRepositories(): Promise<Repositories> {
   const payload = await getPayloadClient()

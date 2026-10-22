@@ -1,6 +1,6 @@
 import { isTheme, THEME_COOKIE, themeOrDefault, themes } from '@/lib/themes'
 import type { Theme } from '@/lib/themes'
-import { inline, menu, menuItem } from '@/terminal/output'
+import { inline, menu, menuItem, refreshing } from '@/terminal/output'
 import { defineCommand } from '@/terminal/types'
 
 const ONE_YEAR = 60 * 60 * 24 * 365
@@ -35,6 +35,6 @@ export default defineCommand({
 
     ctx.cookies.set(THEME_COOKIE, theme, { maxAge: ONE_YEAR })
 
-    return inline([`${theme}. Noted.`])
+    return refreshing(inline([`${theme}. Noted.`]))
   },
 })

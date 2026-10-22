@@ -4,6 +4,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import { useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { routes } from '@/routes'
+import { asSignature } from '@/shell/match-commands'
 import { ShellContext } from '@/shell/shell-context'
 import type { OpenWindow, ShellProps, WindowRequest } from '@/shell/shell-context'
 import type { Output } from '@/terminal/output'
@@ -13,6 +14,7 @@ const FAILED = 'Something went wrong. It has not been reported.'
 
 export default function ShellProvider({
   commands,
+  answers,
   theme,
   ownerTimezone,
   flash,
@@ -88,8 +90,10 @@ export default function ShellProvider({
         setOutput(result)
         setOutputCommand(command.split(' ')[0] ?? command)
         summon()
-        // A command may have changed what the layout reads, such as the theme or sign-in.
-        router.refresh()
+        // Only a command that changed what the layout reads, such as the theme, asks for it again.
+        if (result.refresh) {
+          router.refresh()
+        }
 
         return
       case 'navigate':
@@ -145,6 +149,15 @@ export default function ShellProvider({
   }
 
   async function run(command: string) {
+    // Pure commands were answered when the page was rendered.
+    const answer = answers[asSignature(command)]
+
+    if (answer) {
+      show(answer, command)
+
+      return
+    }
+
     setBusy(true)
 
     try {
@@ -175,6 +188,7 @@ export default function ShellProvider({
     <ShellContext
       value={{
         commands,
+        answers,
         theme,
         ownerTimezone,
         output,

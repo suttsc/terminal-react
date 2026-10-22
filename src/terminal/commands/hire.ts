@@ -5,5 +5,6 @@ export default defineCommand({
   signature: '/hire',
   description: 'Availability and how to get in touch',
   outcome: 'navigate',
+  pure: true,
   handle: async () => navigate('hire'),
 })

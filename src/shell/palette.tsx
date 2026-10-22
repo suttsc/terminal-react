@@ -30,6 +30,31 @@ function Highlighted({ name, typed }: { name: string; typed: string }) {
   )
 }
 
+// Fast answers shouldn't flash a busy state; only a wait you'd notice shows one.
+const BUSY_AFTER_MS = 150
+
+/**
+ * True once the shell has been waiting on the server for a noticeable moment.
+ */
+function useNoticeablyBusy(busy: boolean): boolean {
+  const [noticeable, setNoticeable] = useState(false)
+
+  useEffect(() => {
+    if (!busy) {
+      return
+    }
+
+    const timer = setTimeout(() => setNoticeable(true), BUSY_AFTER_MS)
+
+    return () => {
+      clearTimeout(timer)
+      setNoticeable(false)
+    }
+  }, [busy])
+
+  return busy && noticeable
+}
+
 function Key({ children }: { children: ReactNode }) {
   return (
     <span className="shrink-0 rounded-[5px] border border-line px-1.5 py-[3px] font-mono text-[10.5px] text-ink-faint max-sm:hidden">
@@ -40,6 +65,7 @@ function Key({ children }: { children: ReactNode }) {
 
 export default function Palette() {
   const shell = useShell()
+  const waiting = useNoticeablyBusy(shell.busy)
   const { commands, theme } = shell
   const [query, setQuery] = useState('')
   const [selected, setSelected] = useState(0)
@@ -275,6 +301,10 @@ export default function Palette() {
     footRight = '↑↓ move   ↵ run'
   }
 
+  if (waiting) {
+    footLeft = 'working…'
+  }
+
   return (
     <div
       className={cn(
@@ -298,7 +328,10 @@ export default function Palette() {
         {shell.isHome && <h1 className="sr-only">suttsc</h1>}
 
         <div className="flex h-14 items-center gap-3 border-b border-line-soft px-4">
-          <span aria-hidden="true" className="font-mono text-sm text-accent">
+          <span
+            aria-hidden="true"
+            className={cn('font-mono text-sm text-accent', waiting && 'motion-safe:animate-pulse')}
+          >
             ›
           </span>
           {menu && shell.outputCommand && (

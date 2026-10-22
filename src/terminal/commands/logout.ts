@@ -1,4 +1,4 @@
-import { inline } from '@/terminal/output'
+import { inline, refreshing } from '@/terminal/output'
 import { defineOwnerCommand } from '@/terminal/types'
 
 export default defineOwnerCommand({
@@ -8,6 +8,6 @@ export default defineOwnerCommand({
   handle: async (ctx) => {
     await ctx.session.signOut()
 
-    return inline(['Signed out. You are suttsc again, unofficially.'])
+    return refreshing(inline(['Signed out. You are suttsc again, unofficially.']))
   },
 })
