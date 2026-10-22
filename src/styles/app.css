@@ -9,6 +9,18 @@
   --font-mono: var(--font-plex-mono), ui-monospace, monospace;
 
   --animate-pop: pop 160ms ease-out;
+  /* The duration is a default; each pixel-field cell sets its own. */
+  --animate-twinkle: twinkle 12s ease-in-out infinite;
+
+  @keyframes twinkle {
+    0%,
+    100% {
+      opacity: 0.06;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
 
   @keyframes pop {
     from {
