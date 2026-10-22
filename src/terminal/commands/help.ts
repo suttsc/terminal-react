@@ -5,6 +5,7 @@ export default defineCommand({
   signature: '/help',
   description: 'Everything this thing can do',
   outcome: 'menu',
+  page: true,
   pure: true,
   handle: async (ctx) =>
     menu(

@@ -7,6 +7,7 @@ export default defineCommand({
   signature: '/strava',
   description: 'Recent runs, whether you asked or not',
   outcome: 'window',
+  page: true,
   handle: async (ctx) =>
     window(
       'strava.csv',

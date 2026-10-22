@@ -1,4 +1,10 @@
+import { existsSync } from 'node:fs'
 import { defineConfig, devices } from '@playwright/test'
+
+// The owner test mints a session with AUTH_SECRET; locally it lives in .env.
+if (existsSync('.env')) {
+  process.loadEnvFile('.env')
+}
 
 const port = Number(process.env.PORT ?? 3100)
 

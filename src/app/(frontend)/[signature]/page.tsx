@@ -8,18 +8,14 @@ import { requestContext } from '@/terminal/context'
 import { registry } from '@/terminal/registry'
 import { WindowBody } from '@/windows/registry'
 
-/** Commands that show content get a real URL, for anyone arriving without the palette. */
-const commandPages = ['help', 'uptime', 'blog', 'strava', 'whoami', 'ai'] as const
-
 // Checked by hand as well: a dynamically rendered page doesn't enforce dynamicParams.
-const isCommandPage = (signature: string): boolean =>
-  (commandPages as readonly string[]).includes(signature)
+const isCommandPage = (signature: string): boolean => registry.pages().includes(signature)
 
 type Props = { params: Promise<{ signature: string }> }
 
 export const dynamicParams = false
 
-export const generateStaticParams = () => commandPages.map((signature) => ({ signature }))
+export const generateStaticParams = () => registry.pages().map((signature) => ({ signature }))
 
 const run = cache(async (signature: string) => registry.run(signature, await requestContext()))
 

@@ -6,11 +6,10 @@ import { cn } from '@/lib/utils'
 import Badge, { ThemeSwatch } from '@/shell/badge'
 import { isEditable } from '@/shell/editable'
 import InlineLines from '@/shell/inline-lines'
-import { hasArguments, matchCommands, normalise } from '@/shell/match-commands'
+import { hasArguments, normalise } from '@/shell/match-commands'
+import { paletteFooter, paletteView } from '@/shell/palette-model'
 import { useShell } from '@/shell/shell-context'
 import type { MenuItem } from '@/terminal/output'
-
-type Row = MenuItem
 
 /**
  * The typed prefix of a command name, lit in the accent.
@@ -75,65 +74,11 @@ export default function Palette() {
   const listboxId = useId()
 
   const visible = shell.isHome || shell.open
-  const typed = query.trim()
-  const menu = shell.output?.type === 'menu' ? shell.output : null
-  const inline = typed === '' && shell.output?.type === 'inline' ? shell.output : null
-  const isThemeMenu =
-    menu !== null &&
-    menu.items.length > 0 &&
-    menu.items.every((item) => item.run.startsWith('/theme '))
-
-  const matches: Row[] = matchCommands(commands, typed).map((command) => ({
-    label: command.signature,
-    hint: command.description,
-    run: command.signature,
-    outcome: command.outcome,
-  }))
-
-  // One listbox, four jobs: a menu (filtered as you type), every command at rest,
-  // the commands matching what was typed, or asking when nothing does.
-  let options: Row[]
-  let section: string
-
-  if (menu) {
-    const filter = typed.toLowerCase()
-    options = menu.items.filter(
-      (item) =>
-        filter === '' ||
-        item.label.toLowerCase().includes(filter) ||
-        item.hint.toLowerCase().includes(filter),
-    )
-    section = menu.label
-  } else if (inline) {
-    options = []
-    section = ''
-  } else if (typed === '') {
-    options = commands.map((command) => ({
-      label: command.signature,
-      hint: command.description,
-      run: command.signature,
-      outcome: command.outcome,
-    }))
-    section = 'commands'
-  } else if (matches.length > 0) {
-    options = matches
-    section = 'commands'
-  } else {
-    options = [
-      {
-        label: 'Ask',
-        hint: `“${typed}”`,
-        run: `/ask ${typed.replace(/^\/+/, '')}`,
-        outcome: 'inline',
-      },
-    ]
-    section = 'no match'
-  }
-
-  const asking = section === 'no match'
+  const view = paletteView({ commands, output: shell.output, query })
+  const { typed, menu, inline, isThemeMenu, options, section, asking } = view
   const hasOptions = options.length > 0
   const activeIndex = Math.max(0, Math.min(selected, options.length - 1))
-  const activeOption: Row | undefined = options[activeIndex]
+  const activeOption: MenuItem | undefined = options[activeIndex]
   const optionId = (index: number) => `${listboxId}-option-${index}`
   const previewing = isThemeMenu ? activeOption?.label : undefined
 
@@ -204,7 +149,7 @@ export default function Palette() {
     setSelected(0)
   }
 
-  function execute(option: Row) {
+  function execute(option: MenuItem) {
     keptTheme.current = isThemeMenu ? option.label : null
     // Keep whatever was typed after the signature, so "/theme amber" arrives whole.
     shell.run(!menu && hasArguments(typed, option.run) ? typed : option.run)
@@ -240,8 +185,7 @@ export default function Palette() {
 
         return
       case 'Tab': {
-        const completion =
-          !menu && matches.length > 0 && activeOption ? `${activeOption.run} ` : null
+        const completion = !menu && view.matched && activeOption ? `${activeOption.run} ` : null
 
         if (completion && !query.startsWith(completion)) {
           event.preventDefault()
@@ -281,29 +225,7 @@ export default function Palette() {
     return null
   }
 
-  let footLeft: string
-  let footRight: string
-
-  if (menu) {
-    footLeft = `1–${Math.min(options.length, 9)} to pick${previewing ? ` · previewing ${previewing}` : ''}`
-    footRight = isThemeMenu ? '↵ keep · esc revert' : 'esc back'
-  } else if (inline) {
-    footLeft = 'esc to clear'
-    footRight = ''
-  } else if (asking) {
-    footLeft = 'nothing matched'
-    footRight = '↵ ask'
-  } else {
-    footLeft =
-      typed === ''
-        ? 'type / for commands'
-        : `${options.length} result${options.length === 1 ? '' : 's'}`
-    footRight = '↑↓ move   ↵ run'
-  }
-
-  if (waiting) {
-    footLeft = 'working…'
-  }
+  const footer = paletteFooter(view, { previewing, waiting })
 
   return (
     <div
@@ -426,8 +348,8 @@ export default function Palette() {
         </div>
 
         <div className="flex justify-between gap-4 border-t border-line-soft px-3.5 py-2 font-mono text-[10.5px] tracking-[0.02em] text-ink-faint">
-          <span className="truncate">{footLeft}</span>
-          <span className="shrink-0 whitespace-pre max-sm:hidden">{footRight}</span>
+          <span className="truncate">{footer.left}</span>
+          <span className="shrink-0 whitespace-pre max-sm:hidden">{footer.right}</span>
         </div>
       </div>
     </div>

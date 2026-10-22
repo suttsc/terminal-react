@@ -7,6 +7,7 @@ export default defineCommand({
   signature: '/uptime',
   description: 'Statistics of questionable value',
   outcome: 'inline',
+  page: true,
   handle: async (ctx) => {
     const stats = await ctx.repos.stats.read()
 

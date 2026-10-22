@@ -39,6 +39,27 @@ pnpm build && pnpm test:e2e # Playwright against next start (needs DATABASE_URI)
 | `src/auth/`                    | Auth.js, the owner email check, the flash cookie, Payload strategy |
 | `scripts/`                     | `record-deploy.ts` (build step) and the one-off Laravel import     |
 
+## Adding a command
+
+1. Add `src/terminal/commands/<name>.ts`, default-exporting `defineCommand({...})` (or
+   `defineOwnerCommand`). `handle(ctx)` returns `inline()`, `menu()`, `window()` or
+   `navigate()`.
+2. List it in `src/terminal/commands/index.ts`. A test fails until you do.
+3. Add `tests/terminal/commands/<name>.test.ts`. A test fails until you do.
+4. Optional flags: `hidden` (runs, not listed), `pure` (answered in the browser),
+   `page` (also rendered at `/{name}`). A new window needs a component in
+   `src/windows/` and an entry in `src/windows/registry.tsx`; `window()` won't compile
+   with a key that isn't there.
+
+## Tests
+
+- **Vitest** (`tests/`): every command, the registry, route handlers, services and
+  integrations against in-memory fakes, plus the client-side logic that isn't JSX
+  (command matching, the palette model, the tool libraries). No database or network.
+- **Playwright** (`e2e/`): the real app under `next start` against Postgres. The palette
+  as a combobox, windows and focus, themes, reduced motion, the owner's view, and that
+  fixed commands answer without a request. CI runs both.
+
 ## Deploying
 
 The Vercel build command is `pnpm build:vercel` (set in `vercel.json`):

@@ -5,6 +5,7 @@ export default defineCommand({
   signature: '/blog',
   description: 'Words, eventually',
   outcome: 'inline',
+  page: true,
   pure: true,
   handle: async () =>
     inline([

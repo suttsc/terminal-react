@@ -19,6 +19,8 @@ export type RunContext = Omit<CommandContext, 'args' | 'arg' | 'manifest'>
 export type Registry = {
   manifest(ctx: AuthorizationContext): ManifestEntry[]
   run(input: string, ctx: RunContext): Promise<Output>
+  /** Names of the commands with a page at /{name}, e.g. "help". */
+  pages(): string[]
   /** The answers of the listed pure commands, keyed by signature, to ship with the page. */
   answers(ctx: AuthorizationContext): Promise<Record<string, Output>>
 }
@@ -115,7 +117,16 @@ export function createRegistry(list: TerminalCommand[]): Registry {
     )
   }
 
-  return { manifest, run, answers }
+  function pages(): string[] {
+    // Pages are public: a hidden or owner-only command never gets one.
+    return sorted
+      .filter(
+        (command) => command.page && !command.hidden && command.authorized({ isOwner: false }),
+      )
+      .map((command) => command.signature.slice(1))
+  }
+
+  return { manifest, run, answers, pages }
 }
 
 export const registry = createRegistry(commands)

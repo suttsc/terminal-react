@@ -56,16 +56,23 @@ export type TerminalCommand = {
    * page, so the palette shows it without asking the server.
    */
   pure: boolean
+  /**
+   * Whether the command's answer also lives at /{name}, for anyone arriving
+   * without the palette. Navigate commands have their own pages instead.
+   */
+  page: boolean
   /** Whether the current visitor may know the command exists at all. */
   authorized(ctx: AuthorizationContext): boolean
   handle(ctx: CommandContext): Promise<Output>
 }
 
-type CommandDefinition = Omit<TerminalCommand, 'hidden' | 'pure' | 'authorized'> &
-  Partial<Pick<TerminalCommand, 'hidden' | 'pure' | 'authorized'>>
+type Defaulted = 'hidden' | 'pure' | 'page' | 'authorized'
+
+type CommandDefinition = Omit<TerminalCommand, Defaulted> &
+  Partial<Pick<TerminalCommand, Defaulted>>
 
 export function defineCommand(definition: CommandDefinition): TerminalCommand {
-  return { hidden: false, pure: false, authorized: () => true, ...definition }
+  return { hidden: false, pure: false, page: false, authorized: () => true, ...definition }
 }
 
 /**

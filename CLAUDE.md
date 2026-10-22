@@ -26,6 +26,10 @@ clearest way to make a point. Don't scaffold whole features unprompted.
 - Commands failing `authorized(ctx)` are stripped from the manifest on the server and
   404 exactly like a missing command. Never filter in React
 - Follow the shape of the existing commands exactly
+- `pure: true` when the answer depends on nothing but `isOwner` and the manifest: it ships
+  with the page and the palette answers without a request. Anything else it touches throws
+- `page: true` when the answer should also live at `/{name}`; only public, listed commands
+- Wrap an answer in `refreshing()` when the command changed something the layout reads
 
 ## Hard rules
 
@@ -46,7 +50,9 @@ clearest way to make a point. Don't scaffold whole features unprompted.
 
 - TypeScript strict, no `any` outside the window registry's `ComponentType<any>`
 - Server components by default; `'use client'` only in `src/shell`, `src/windows` and tool UIs
-- Route handlers validate with zod; services hold logic; components render outputs only
+- Route handlers validate with zod; services hold logic; components render outputs only.
+  Client-side decisions live in plain modules beside the component (e.g.
+  `shell/palette-model.ts`) so Vitest can cover them; Playwright covers interaction
 - Integrations behind an interface with a fake used in tests
 - Tailwind for all styling; colours only via theme tokens in `app.css`
 - Palette is a real combobox; focus trapped in windows and returned on close;
