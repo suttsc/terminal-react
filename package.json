@@ -26,9 +26,9 @@
     "check": "pnpm typecheck && pnpm lint && pnpm format:check && pnpm test"
   },
   "dependencies": {
-    "@payloadcms/db-postgres": "3.91.0",
-    "@payloadcms/next": "3.91.0",
-    "@payloadcms/ui": "3.91.0",
+    "@payloadcms/db-postgres": "3.92.0",
+    "@payloadcms/next": "3.92.0",
+    "@payloadcms/ui": "3.92.0",
     "clsx": "^2.1.1",
     "cross-env": "^10.1.0",
     "entities": "^8.1.0",
@@ -36,7 +36,7 @@
     "jose": "^6.2.13",
     "next": "16.4.2",
     "next-auth": "5.0.0-beta.32",
-    "payload": "3.91.0",
+    "payload": "3.92.0",
     "react": "19.3.1",
     "react-dom": "19.3.1",
     "server-only": "^0.0.1",
