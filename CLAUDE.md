@@ -54,6 +54,9 @@ clearest way to make a point. Don't scaffold whole features unprompted.
   Client-side decisions live in plain modules beside the component (e.g.
   `shell/palette-model.ts`) so Vitest can cover them; Playwright covers interaction
 - Integrations behind an interface with a fake used in tests
+- Security headers live in `src/http/security-headers.ts`; pages get a per-request nonce
+  CSP from `proxy.ts`. Anything from another origin (a script, font, image, iframe) needs
+  the policy changed on purpose, never `'unsafe-inline'` scripts
 - Tailwind for all styling; colours only via theme tokens in `app.css`
 - Palette is a real combobox; focus trapped in windows and returned on close;
   `motion-safe:` on every animation
