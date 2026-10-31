@@ -23,7 +23,14 @@ describe('the sign-in flash', () => {
   it('ignores anything forged, tampered with or missing', async () => {
     const sealed = await sealFlash({ signedIn: true })
 
-    await expect(openFlash(`${sealed.slice(0, -2)}xx`)).resolves.toBeNull()
+    // Change one character in the middle of the ciphertext, which always changes real bits
+    // (a token's last base64url character carries padding the decoder ignores).
+    const parts = sealed.split('.')
+    const ciphertext = parts[3] ?? ''
+    const middle = Math.floor(ciphertext.length / 2)
+    parts[3] = `${ciphertext.slice(0, middle)}${ciphertext[middle] === 'A' ? 'B' : 'A'}${ciphertext.slice(middle + 1)}`
+
+    await expect(openFlash(parts.join('.'))).resolves.toBeNull()
     await expect(openFlash('{"signedIn":true}')).resolves.toBeNull()
     await expect(openFlash(null)).resolves.toBeNull()
   })
