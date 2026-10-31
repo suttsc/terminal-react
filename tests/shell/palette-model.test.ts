@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { paletteFooter, paletteView } from '@/shell/palette-model'
+import { escapeAction, paletteFooter, paletteView } from '@/shell/palette-model'
 import { inline, menu, menuItem } from '@/terminal/output'
 import type { ManifestEntry } from '@/terminal/types'
 
@@ -24,7 +24,7 @@ describe('the palette', () => {
   it('lists every command when nothing is typed', () => {
     expect(view('')).toMatchObject({ section: 'commands', asking: false })
     expect(labels('')).toEqual(['/about', '/help', '/theme'])
-    expect(paletteFooter(view(''), { waiting: false })).toEqual({
+    expect(paletteFooter(view(''), { waiting: false })).toMatchObject({
       left: 'type / for commands',
       right: '↑↓ move   ↵ run',
     })
@@ -41,7 +41,7 @@ describe('the palette', () => {
       { label: 'Ask', hint: '“why is the sky”', run: '/ask why is the sky', outcome: 'inline' },
     ])
     expect(view('//odd').options[0]?.run).toBe('/ask odd')
-    expect(paletteFooter(view('nope'), { waiting: false })).toEqual({
+    expect(paletteFooter(view('nope'), { waiting: false })).toMatchObject({
       left: 'nothing matched',
       right: '↵ ask',
     })
@@ -64,7 +64,7 @@ describe('the palette', () => {
   it('knows a theme menu, and says what it is previewing', () => {
     expect(view('', themes).isThemeMenu).toBe(true)
     expect(view('', menu('commands', [menuItem('/about', '', '/about')])).isThemeMenu).toBe(false)
-    expect(paletteFooter(view('', themes), { previewing: 'cold', waiting: false })).toEqual({
+    expect(paletteFooter(view('', themes), { previewing: 'cold', waiting: false })).toMatchObject({
       left: '1–2 to pick · previewing cold',
       right: '↵ keep · esc revert',
     })
@@ -72,5 +72,38 @@ describe('the palette', () => {
 
   it('says it is working while a slow command runs', () => {
     expect(paletteFooter(view(''), { waiting: true }).left).toBe('working…')
+  })
+
+  it('speaks to a touchscreen without mentioning keys', () => {
+    expect(paletteFooter(view(''), { waiting: false }).touch).toBe('tap a command')
+    expect(paletteFooter(view('', inline(['0 posts.'])), { waiting: false }).touch).toBe(
+      'back for the commands',
+    )
+    expect(paletteFooter(view('', themes), { previewing: 'cold', waiting: false }).touch).toBe(
+      'tap to pick · previewing cold',
+    )
+    expect(paletteFooter(view(''), { waiting: true }).touch).toBe('working…')
+
+    for (const query of ['', '/he', 'nope']) {
+      expect(paletteFooter(view(query), { waiting: false }).touch).not.toMatch(/esc|↵|↑/)
+    }
+  })
+})
+
+describe('what Esc does', () => {
+  it('clears what was typed first', () => {
+    expect(escapeAction({ query: '/up', hasOutput: true, open: true })).toBe('clear')
+  })
+
+  it('then goes back to the commands from an answer', () => {
+    expect(escapeAction({ query: '', hasOutput: true, open: false })).toBe('back')
+  })
+
+  it('then closes a summoned palette', () => {
+    expect(escapeAction({ query: '', hasOutput: false, open: true })).toBe('close')
+  })
+
+  it('does nothing on the homepage with nothing to undo', () => {
+    expect(escapeAction({ query: '', hasOutput: false, open: false })).toBeNull()
   })
 })

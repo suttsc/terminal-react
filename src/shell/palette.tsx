@@ -7,7 +7,8 @@ import Badge, { ThemeSwatch } from '@/shell/badge'
 import { isEditable } from '@/shell/editable'
 import InlineLines from '@/shell/inline-lines'
 import { hasArguments, normalise } from '@/shell/match-commands'
-import { paletteFooter, paletteView } from '@/shell/palette-model'
+import { escapeAction, paletteFooter, paletteView } from '@/shell/palette-model'
+import type { EscapeAction } from '@/shell/palette-model'
 import { useShell } from '@/shell/shell-context'
 import type { MenuItem } from '@/terminal/output'
 
@@ -54,11 +55,40 @@ function useNoticeablyBusy(busy: boolean): boolean {
   return busy && noticeable
 }
 
+const keyClass =
+  'shrink-0 rounded-[5px] border border-line px-1.5 py-[3px] font-mono text-[10.5px] text-ink-faint'
+
 function Key({ children }: { children: ReactNode }) {
+  return <span className={cn(keyClass, 'max-sm:hidden')}>{children}</span>
+}
+
+const escapeLabels: Record<EscapeAction, string> = {
+  clear: 'Clear what was typed',
+  back: 'Back to the commands',
+  close: 'Close the palette',
+}
+
+/**
+ * Esc as something to press: the key on a keyboard, the action on a touchscreen,
+ * which has no Esc to speak of.
+ */
+function EscapeButton({ action, onPress }: { action: EscapeAction; onPress: () => void }) {
   return (
-    <span className="shrink-0 rounded-[5px] border border-line px-1.5 py-[3px] font-mono text-[10.5px] text-ink-faint max-sm:hidden">
-      {children}
-    </span>
+    <button
+      type="button"
+      aria-label={escapeLabels[action]}
+      aria-keyshortcuts="Escape"
+      className={cn(
+        keyClass,
+        'cursor-pointer hover:border-ink-faint hover:text-ink pointer-coarse:min-h-11 pointer-coarse:px-3 pointer-coarse:text-xs pointer-coarse:text-ink-dim',
+      )}
+      // Keeps focus in the input, as the options do.
+      onMouseDown={(event) => event.preventDefault()}
+      onClick={onPress}
+    >
+      <span className="pointer-coarse:hidden">esc</span>
+      <span className="hidden pointer-coarse:inline">{action}</span>
+    </button>
   )
 }
 
@@ -162,6 +192,16 @@ export default function Palette() {
     shell.clear()
   }
 
+  function escape() {
+    if (query !== '') {
+      updateQuery('')
+    } else if (shell.output !== null) {
+      back()
+    } else {
+      shell.dismiss()
+    }
+  }
+
   function handleKeyDown(event: ReactKeyboardEvent<HTMLInputElement>) {
     switch (event.key) {
       case 'ArrowDown':
@@ -198,13 +238,7 @@ export default function Palette() {
         return
       }
       case 'Escape':
-        if (query !== '') {
-          updateQuery('')
-        } else if (shell.output !== null) {
-          back()
-        } else {
-          shell.dismiss()
-        }
+        escape()
 
         return
       default: {
@@ -226,6 +260,7 @@ export default function Palette() {
   }
 
   const footer = paletteFooter(view, { previewing, waiting })
+  const escaping = escapeAction({ query, hasOutput: shell.output !== null, open: shell.open })
 
   return (
     <div
@@ -279,7 +314,7 @@ export default function Palette() {
             onChange={(event) => updateQuery(event.target.value)}
             onKeyDown={handleKeyDown}
           />
-          <Key>esc</Key>
+          {escaping ? <EscapeButton action={escaping} onPress={escape} /> : <Key>esc</Key>}
         </div>
 
         <div hidden={!hasOptions}>
@@ -348,7 +383,8 @@ export default function Palette() {
         </div>
 
         <div className="flex justify-between gap-4 border-t border-line-soft px-3.5 py-2 font-mono text-[10.5px] tracking-[0.02em] text-ink-faint">
-          <span className="truncate">{footer.left}</span>
+          <span className="truncate pointer-coarse:hidden">{footer.left}</span>
+          <span className="hidden truncate pointer-coarse:inline">{footer.touch}</span>
           <span className="shrink-0 whitespace-pre max-sm:hidden">{footer.right}</span>
         </div>
       </div>
