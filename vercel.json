@@ -1,6 +1,11 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "buildCommand": "pnpm build:vercel",
+  "git": {
+    "deploymentEnabled": {
+      "dependabot/**": false
+    }
+  },
   "crons": [
     { "path": "/api/cron/strava", "schedule": "0 5 * * *" },
     { "path": "/api/cron/link-titles", "schedule": "30 5 * * *" }

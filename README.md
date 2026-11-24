@@ -62,8 +62,10 @@ pnpm build && pnpm test:e2e # Playwright against next start (needs DATABASE_URI)
 
 ## Deploying
 
-The Vercel build command is `pnpm build:vercel` (set in `vercel.json`):
-`payload migrate && next build && tsx scripts/record-deploy.ts`.
+The Vercel build command is `pnpm build:vercel` (set in `vercel.json`): migrate, build,
+then count the deploy. Migrations and the deploy count run on production builds only:
+previews share the production database. Dependabot branches aren't deployed at all
+(`git.deploymentEnabled` in `vercel.json`); CI checks them instead.
 
 Before the first production deploy:
 

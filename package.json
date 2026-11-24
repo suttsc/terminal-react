@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "build:vercel": "payload migrate && next build && tsx scripts/record-deploy.ts",
+    "build:vercel": "tsx scripts/migrate-production.ts && next build && tsx scripts/record-deploy.ts",
     "start": "next start",
     "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
     "generate:types": "cross-env NODE_OPTIONS=--no-deprecation payload generate:types",
