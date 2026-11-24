@@ -58,8 +58,9 @@ clearest way to make a point. Don't scaffold whole features unprompted.
   CSP from `proxy.ts`. Anything from another origin (a script, font, image, iframe) needs
   the policy changed on purpose, never `'unsafe-inline'` scripts
 - Tailwind for all styling; colours only via theme tokens in `app.css`
-- Palette is a real combobox; focus trapped in windows and returned on close;
-  `motion-safe:` on every animation
+- Palette is a real combobox; focus trapped in windows and returned on close (a click or
+  tap never lands back in a text field: `shell/focus-return.ts`); `motion-safe:` on every
+  animation
 - Resist building a window manager: drag, focus, close, minimise. Nothing else
 - British English in copy, comments and commit messages
 - Commits start with `fix: `, `feat: `, `chore: `, `build: ` or `docs: `

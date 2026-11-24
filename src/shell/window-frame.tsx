@@ -7,6 +7,8 @@ import type {
   ReactNode,
 } from 'react'
 import { cn } from '@/lib/utils'
+import { isEditable } from '@/shell/editable'
+import { shouldReturnFocus } from '@/shell/focus-return'
 import { useShell } from '@/shell/shell-context'
 import type { OpenWindow } from '@/shell/shell-context'
 
@@ -33,7 +35,8 @@ function Control({
 }: {
   label: string
   tone: 'hide' | 'close'
-  onClick: () => void
+  /** `byKeyboard` is true when Enter or Space pressed it rather than a pointer. */
+  onClick: (byKeyboard: boolean) => void
   children: string
 }) {
   return (
@@ -42,7 +45,8 @@ function Control({
       type="button"
       aria-label={label}
       className="group/control flex cursor-pointer items-center justify-center outline-none pointer-coarse:size-11"
-      onClick={onClick}
+      // A click from Enter or Space reports no pointer presses.
+      onClick={(event) => onClick(event.detail === 0)}
     >
       <span
         className={
@@ -70,6 +74,8 @@ export default function WindowFrame({ window: frame, children }: WindowFrameProp
   const titleId = useId()
   const ref = useRef<HTMLDivElement>(null)
   const returnFocusTo = useRef<HTMLElement | null>(null)
+  // How the window was last put away, which decides where focus goes after.
+  const closedByKeyboard = useRef(true)
   const drag = useRef<{ dx: number; dy: number } | null>(null)
   const [position, setPosition] = useState(() =>
     startingPosition(frame.id, frame.wide ? WIDE : WIDTH),
@@ -89,19 +95,32 @@ export default function WindowFrame({ window: frame, children }: WindowFrameProp
     ref.current?.focus()
   }, [frame.minimised])
 
-  useEffect(
-    () => () => {
-      if (returnFocusTo.current?.isConnected) {
-        returnFocusTo.current.focus()
-      }
-    },
-    [],
-  )
+  function handBackFocus() {
+    const target = returnFocusTo.current
+
+    if (
+      target?.isConnected &&
+      shouldReturnFocus({
+        byKeyboard: closedByKeyboard.current,
+        targetIsEditable: isEditable(target),
+      })
+    ) {
+      target.focus()
+    }
+  }
+
+  // Runs once, on close. The ref holds whichever way it was closed.
+  useEffect(() => handBackFocus, [])
+
+  function close(byKeyboard: boolean) {
+    closedByKeyboard.current = byKeyboard
+    shell.closeWindow(frame.id)
+  }
 
   function trapFocus(event: ReactKeyboardEvent<HTMLDivElement>) {
     if (event.key === 'Escape') {
       event.stopPropagation()
-      shell.closeWindow(frame.id)
+      close(true)
 
       return
     }
@@ -152,12 +171,10 @@ export default function WindowFrame({ window: frame, children }: WindowFrameProp
     })
   }
 
-  function minimise() {
+  function minimise(byKeyboard: boolean) {
+    closedByKeyboard.current = byKeyboard
     shell.minimiseWindow(frame.id)
-
-    if (returnFocusTo.current?.isConnected) {
-      returnFocusTo.current.focus()
-    }
+    handBackFocus()
   }
 
   return (
@@ -196,11 +213,7 @@ export default function WindowFrame({ window: frame, children }: WindowFrameProp
           <Control label={`Minimise ${frame.title}`} tone="hide" onClick={minimise}>
             hide
           </Control>
-          <Control
-            label={`Close ${frame.title}`}
-            tone="close"
-            onClick={() => shell.closeWindow(frame.id)}
-          >
+          <Control label={`Close ${frame.title}`} tone="close" onClick={close}>
             close
           </Control>
         </div>

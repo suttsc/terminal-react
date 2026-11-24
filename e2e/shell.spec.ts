@@ -108,3 +108,39 @@ test('visitors never see owner commands in the page source', async ({ request })
     expect(html).not.toContain(signature)
   }
 })
+
+test.describe('closing a window', () => {
+  async function openAbout(page: import('@playwright/test').Page) {
+    await page.goto('/')
+    await page.getByRole('combobox').fill('/about')
+    await page.keyboard.press('Enter')
+    await expect(page.getByRole('dialog', { name: 'about.txt' })).toBeVisible()
+  }
+
+  test('with a click leaves the palette input alone', async ({ page }) => {
+    await openAbout(page)
+
+    await page.getByRole('button', { name: 'Close about.txt' }).click()
+
+    await expect(page.getByRole('dialog', { name: 'about.txt' })).toBeHidden()
+    await expect(page.getByRole('combobox')).not.toBeFocused()
+  })
+
+  test('with a click on hide leaves the palette input alone too', async ({ page }) => {
+    await openAbout(page)
+
+    await page.getByRole('button', { name: 'Minimise about.txt' }).click()
+
+    await expect(page.getByRole('combobox')).not.toBeFocused()
+  })
+
+  test('from the keyboard hands focus back to the input', async ({ page }) => {
+    await openAbout(page)
+
+    await page.getByRole('button', { name: 'Close about.txt' }).focus()
+    await page.keyboard.press('Enter')
+
+    await expect(page.getByRole('dialog', { name: 'about.txt' })).toBeHidden()
+    await expect(page.getByRole('combobox')).toBeFocused()
+  })
+})
