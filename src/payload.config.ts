@@ -23,6 +23,8 @@ export default buildConfig({
   },
   admin: {
     user: Users.slug,
+    // Gravatar would send a hash of the owner's email to a third party on every admin page.
+    avatar: 'default',
     importMap: { baseDir: dirname },
     meta: {
       titleSuffix: ' - suttsc',
